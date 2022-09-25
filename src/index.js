@@ -15,7 +15,7 @@ let lightbox = new SimpleLightbox('.gallery a');
 
 refs.searchForm.addEventListener('submit', searchImages);
 
-function searchImages(e) {
+async function searchImages(e) {
   e.preventDefault();
   imageAPI.query = e.currentTarget.elements.searchQuery.value;
 
@@ -24,20 +24,18 @@ function searchImages(e) {
   clearGallery();
   imageAPI.resetPage();
 
-  imageAPI.fetchImages().then(({ data }) => {
-    if (data.hits.length === 0) {
-      Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
-      ),
-        { timeout: 4000 };
-      return;
-    }
+  const { data } = await imageAPI.fetchImages();
+  if (data.hits.length === 0) {
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    ),
+      { timeout: 4000 };
+    return;
+  }
 
-    Notify.info(`Hooray! We found ${data.totalHits} images.`),
-      { timeout: 5000 };
+  Notify.info(`Hooray! We found ${data.totalHits} images.`), { timeout: 5000 };
 
-    createPage(data);
-  });
+  createPage(data);
 }
 
 function clearGallery() {
